@@ -29,6 +29,7 @@ int simulacaoAtual = 0;
 // Mini Pong
 int mp_pontMaq = 0,mp_pontPla = 0;
 int mp_pyMaq = 0,mp_pyPla = 0;
+int mp_pxBal = -1,mp_pyBal=0,mp_vxBal=0,mp_vyBal=0;
 
 boolean rodarCarregamento = true;
 boolean showObjects = true;
@@ -36,11 +37,9 @@ boolean showObjects = true;
 void carregamento(){
   noStroke();
   background(#FFBA39);
-  fill(#ff0000);
-  circle(width/2,height/2,20);
 
   // Escrita
-  String texto1 = "Simulando "+simulacoes+" Jogos ";
+  String texto1 = "Simulando "+String.format("%,d",simulacoes).replace(",",".")+" de jogos ";
   String texto2 = texto1;
   for (int i = 0;i<qt_pontos;i++){
     texto2 += ".";
@@ -73,7 +72,7 @@ void carregamento(){
   // Mini pong
   miniPong();
   //
-  delay(100);
+  delay(50);
 }
 
 void miniPong(){
@@ -90,12 +89,52 @@ void miniPong(){
   fill(#AEC0F2);
   rect(initPx+spaceGoal-compBarra,initPy+mp_pyMaq,compBarra,largBarra); // maquina
   rect(initPx+compPong-spaceGoal,initPy+mp_pyPla,compBarra,largBarra); // player
+
   // movimento
-  mp_pyPla = largPong*mouseY/width;
+  mp_pyPla = mouseY-initPy-largBarra/2;
+  mp_pyMaq = mp_pyBal-largBarra/2;
+  if (mp_pyMaq<0) mp_pyMaq=0;
+  if (mp_pyMaq+largBarra>largPong) mp_pyMaq = largPong-largBarra;
+  if (mp_pyPla<0) mp_pyPla=0;
+  if (mp_pyPla+largBarra>largPong) mp_pyPla = largPong-largBarra;
+  
+  // bolinha
+  int velBase = 10 ,raioBola = 9; // velBase > raioBola
+  if (mp_pxBal == -1){
+    mp_pxBal=compPong/2;mp_pyBal=0;
+    mp_vxBal=(velBase)*((random(1)>0.5)?1:-1);mp_vyBal=velBase;
+    println(mp_vxBal);
+  }
+  mp_pxBal+=mp_vxBal;mp_pyBal+=mp_vyBal;
 
-  if (mp_pyMaq>=largPong)mp_pyMaq=largPong-largBarra;
-  if (mp_pyPla>=largPong)mp_pyPla=largPong-largBarra;
+  // bate nas paredes
+  if (mp_pyBal+raioBola>=largPong||mp_pyBal-raioBola<=0) mp_vyBal*=-1;
 
+  // soma os pontos ou rebate
+  if (mp_pxBal+raioBola>=compPong-spaceGoal){
+    if (mp_pyBal>=mp_pyPla&&mp_pyBal<=mp_pyPla+largBarra) mp_vxBal*=-1;
+    else {mp_pontMaq+=1;mp_pxBal=-1;}
+  }else if (mp_pxBal-raioBola<=spaceGoal){
+    if (mp_pyBal>=mp_pyMaq&&mp_pyMaq<=mp_pyMaq+largBarra) mp_vxBal*=-1;
+    else {mp_pontPla+=1;mp_pxBal=-1;}
+  }
+
+  // desenha bolinha
+  fill(#B538FA);
+  circle(initPx+mp_pxBal,initPy+mp_pyBal,raioBola);
+
+  // Placar
+  fill(#000000);
+  textSize(25);
+  String texto = "Maquina: "+mp_pontMaq+" | Perdedor: "+mp_pontPla;
+  text(texto,initPx+compPong/2-textWidth(texto)/2,initPy-5);
+
+  // linhas imaginárias
+  stroke(1);
+  fill(#000000);
+  line(initPx+compPong-spaceGoal,initPy,initPx+compPong-spaceGoal,initPy+largPong);
+  line(initPx+spaceGoal,initPy,initPx+spaceGoal,initPy+largPong);
+  noStroke();
 
 }
 
