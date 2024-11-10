@@ -43,7 +43,7 @@ class Ball {
       }
     }
     
-    this.show();
+    if (showObjects) this.show();
   }
 
   void show() {

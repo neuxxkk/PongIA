@@ -4,7 +4,6 @@ class Platform {
   float altura, largura;
   boolean up, down, auto;
   
-  
   Platform(float x, float y, float altura, float largura, float vel) {
     auto = true;
     pos = new PVector(x, y);
@@ -28,7 +27,7 @@ class Platform {
     
     pos.y += vel;
     
-    this.show();
+    if (showObjects) this.show();
   }
   
   void show() {

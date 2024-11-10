@@ -22,6 +22,101 @@ float graphScale = 10;
 
 color bgColor = #16212E;
 color graphColor = #447BC1;
+int simulacoes = 1000000000;
+int qt_pontos = 1;
+int simulacaoAtual = 0;
+
+// Mini Pong
+int mp_pontMaq = 0,mp_pontPla = 0;
+int mp_pyMaq = 0,mp_pyPla = 0;
+
+boolean rodarCarregamento = true;
+boolean showObjects = true;
+
+void carregamento(){
+  noStroke();
+  background(#FFBA39);
+  fill(#ff0000);
+  circle(width/2,height/2,20);
+
+  // Escrita
+  String texto1 = "Simulando "+simulacoes+" Jogos ";
+  String texto2 = texto1;
+  for (int i = 0;i<qt_pontos;i++){
+    texto2 += ".";
+  }
+  int tamanhoFonte = 50;
+  textSize(tamanhoFonte);
+  fill(#000000);
+  text(texto2,width/2-textWidth(texto1)/2,height/2-100);
+
+  // Progresso
+  int tamanhoBarra = 500;
+  int espessuraBarra = 20;
+  int ultimoPercento = 0;
+  for (int i = 1;i<=100;i++){
+    fill(#ffffff);
+    if (i<=((float) (simulacaoAtual+1)/simulacoes)*100){
+      fill(#4BFF00);
+      ultimoPercento = i;
+    }
+    rect((width-tamanhoBarra)/2+(i-1)*tamanhoBarra/100,height/2-65,tamanhoBarra/100,espessuraBarra);
+  }
+
+  // Porcentagem
+  fill((int) (75/100*ultimoPercento),(int) (255/100*ultimoPercento),0);
+  tamanhoFonte = 25;
+  textSize(tamanhoFonte);
+  String texto = ultimoPercento+"%";
+  text(texto,(width-tamanhoBarra)/2+(tamanhoBarra/100)*ultimoPercento-textWidth(texto)/2,height/2-65+espessuraBarra-textAscent()-5);
+
+  // Mini pong
+  miniPong();
+  //
+  delay(100);
+}
+
+void miniPong(){
+  // mapa
+  int compPong = width*4/10; // default 400
+  int largPong = height*2/5; // default 200
+  int compBarra = 20,largBarra = 40;
+  fill(#1C5AFF);
+  int initPx = width/2-compPong/2;
+  int initPy = height/2;
+  int spaceGoal = 40;
+  rect(width/2-compPong/2,height/2,compPong,largPong);
+  // barras
+  fill(#AEC0F2);
+  rect(initPx+spaceGoal-compBarra,initPy+mp_pyMaq,compBarra,largBarra); // maquina
+  rect(initPx+compPong-spaceGoal,initPy+mp_pyPla,compBarra,largBarra); // player
+  // movimento
+  mp_pyPla = largPong*mouseY/width;
+
+  if (mp_pyMaq>=largPong)mp_pyMaq=largPong-largBarra;
+  if (mp_pyPla>=largPong)mp_pyPla=largPong-largBarra;
+
+
+}
+
+void rodarSimulacoes(){
+  jogo = new Jogo();
+  pontuacoes = new ArrayList<Integer>();
+  showObjects = false;
+  for (int i = 0; i < simulacoes; i++) {
+    jogo.atualizar();
+    if (fimDeJogo) {
+      pontuacoes.add(jogo.pontuacao);
+      pontuacaoMax = max(pontuacaoMax, jogo.pontuacao);
+      jogo.reiniciar();
+    }
+    simulacaoAtual = i;
+  }
+  println(pontuacaoMax);
+  delay(4*1000);
+  showObjects = true;
+  rodarCarregamento = false;
+}
 
 void showGraph() {
   //float l = width/(float)pontuacoes.size();
@@ -86,33 +181,27 @@ void keyPressed() {
 void setup() {
   size(1000, 500);
   frameRate(120);
-  jogo = new Jogo();
-  pontuacoes = new ArrayList<Integer>();
-  for (int i = 0; i < 1000000; i++) {
-    jogo.atualizar();
-    if (fimDeJogo) {
-      pontuacoes.add(jogo.pontuacao);
-      pontuacaoMax = max(pontuacaoMax, jogo.pontuacao);
-      jogo.reiniciar();
-    }
-  }
-  background(bgColor);
-  println(pontuacaoMax);
+
+  rodarCarregamento = true;
+  thread("rodarSimulacoes");
 }
 
 void draw() {
-  background(bgColor);
+  if (rodarCarregamento){
+    carregamento();
+    qt_pontos += (qt_pontos < 5) ? 1 : -4;
+    // println(simulacaoAtual);
+  }else{
+    background(bgColor);
+    jogo.atualizar();
+    jogo.desenhar();
+    if (isGraph) showGraph();
 
-  jogo.atualizar();
-  jogo.desenhar();
-  if (isGraph) showGraph();
-
-
-  if (fimDeJogo) {
-    pontuacoes.add(jogo.pontuacao);
-    pontuacaoMax = max(pontuacaoMax, jogo.pontuacao);
-    println(jogo.pontuacao);
-    jogo.reiniciar();
-    //setup();
+    if (fimDeJogo) {
+      pontuacoes.add(jogo.pontuacao);
+      pontuacaoMax = max(pontuacaoMax, jogo.pontuacao);
+      println(jogo.pontuacao);
+      jogo.reiniciar();
+    }
   }
 }
