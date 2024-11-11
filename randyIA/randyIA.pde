@@ -132,7 +132,7 @@ void miniPong(){
       if (alpha/PI*180<=5) alpha=(90-alpha/PI*180)/180*PI;
       mp_vxBal = (float) Math.sin(alpha)*velResultante;
       mp_vyBal = (float) Math.cos(alpha)*velResultante;
-      println("---------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
+      println("-Pla--------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
       mp_vxBal*=-1;
     }
     else {mp_pontMaq+=1;mp_pxBal=-1;}
@@ -149,8 +149,8 @@ void miniPong(){
       if (alpha/PI*180<=5) alpha=(90-alpha/PI*180)/180*PI;
       mp_vxBal = (float) Math.sin(alpha)*velResultante;
       mp_vyBal = (float) Math.cos(alpha)*velResultante;
-      println("---------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
-      mp_vxBal*=-1;
+      println("-Maq--------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
+      // mp_vxBal*=-1;
     }
     else {mp_pontPla+=1;mp_pxBal=-1;}
   }
