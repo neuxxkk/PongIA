@@ -2,7 +2,7 @@ Platform paddleIA;
 Ball ball;
 
 final int LARGURA_PLATFORM = 10;
-final int ALTURA_PLATFORM = 200;
+final int ALTURA_PLATFORM = 70;
 final float VELOCIDADE_PLATFORM = 1.5;
 final float speed = 5;
 final float RAIO_BALL = 20;
@@ -79,6 +79,7 @@ void carregamento(){
 
 void miniPong(){
   rectMode(CORNER);
+
   // mapa
   stroke(1);
   int compPong = width*4/10; // default 400
@@ -105,17 +106,18 @@ void miniPong(){
   if (mp_pyPla+largBarra>largPong) mp_pyPla = largPong-largBarra;
   
   // bolinha
-  float velBase = 0.2;
-  int raioBola = 9; // velBase > raioBola
+  float velBase = 5;
+  int raioBola = 4; // velBase > raioBola
   if (mp_pxBal == -1){
-    mp_pxBal=compPong/2;mp_pyBal=0;
-    mp_vxBal=(int) (velBase)*((random(1)>0.5)?1:-1);mp_vyBal=(int) velBase;
+    mp_pxBal=compPong/2;mp_pyBal=raioBola*2+1;
+    mp_vxBal=(velBase)*((random(1)>0.5)?1:-1);mp_vyBal=(int) velBase;
     println(mp_vxBal);
   }
   mp_pxBal+=mp_vxBal;mp_pyBal+=mp_vyBal;
 
   // bate nas paredes
-  if (mp_pyBal+raioBola>=largPong||mp_pyBal-raioBola<=0) mp_vyBal*=-1;
+  if (mp_pyBal+raioBola>=largPong) mp_vyBal=-mod(mp_vyBal);
+  else if (mp_pyBal-raioBola<=0) mp_vyBal=mod(mp_vyBal);
 
   // soma os pontos ou rebate
   if (mp_pxBal+raioBola>=compPong-spaceGoal){
@@ -128,13 +130,13 @@ void miniPong(){
 
   // desenha bolinha
   fill(#FFFFFF);
-  circle(initPx+mp_pxBal,initPy+mp_pyBal,raioBola);
+  circle(initPx+mp_pxBal,initPy+mp_pyBal,raioBola*2);
 
   // Placar
   fill(#ffffff);
   textSize(25);
-  String texto = "Maquina: "+mp_pontMaq+" | Perdedor: "+mp_pontPla;
-  text(texto,initPx+compPong/2-textWidth(texto)/2,initPy-5);
+  String texto = "Máquina: "+mp_pontMaq+" | Perdedor: "+mp_pontPla;
+  text(texto,initPx+compPong/2-textWidth(texto)/2,initPy-6);
 
   // linhas imaginárias
   stroke(1);
@@ -143,6 +145,10 @@ void miniPong(){
   line(initPx+spaceGoal,initPy,initPx+spaceGoal,initPy+largPong);
   noStroke();
 
+}
+
+float mod(float x){
+  return (float) Math.pow(Math.pow(x,2),0.5);
 }
 
 void rodarSimulacoes(){
@@ -241,9 +247,10 @@ void setup() {
 }
 
 void draw() {
+  int pontos = 5;
   if (rodarCarregamento){
     carregamento();
-    qt_pontos += (qt_pontos < 50) ? 1 : -49;
+    qt_pontos += (qt_pontos < (pontos+1)*10-1) ? 1 : -(pontos+1)*10-1;
     // println(simulacaoAtual);
   }else{
     background(bgColor);

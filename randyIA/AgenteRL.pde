@@ -20,7 +20,11 @@ class AgenteRL {
   float obterValorQ(String estado, int acao) {
     String chave = estado + "," + acao;
     if (!tabelaQ.containsKey(chave)) tabelaQ.put(chave, 0.0);
-    return tabelaQ.get(chave);
+    try { // erro quando a perta 'r' quando está carregando
+      return tabelaQ.get(chave);
+    } catch (Exception e){
+      return 0;
+    }
   }
 
   void atualizarValorQ(String estado, int acao, float recompensa, String proximoEstado) {
