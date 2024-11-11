@@ -1,13 +1,12 @@
-Platform paddleIA;
-Ball ball;
-
 final int LARGURA_PLATFORM = 10;
 final int ALTURA_PLATFORM = 70;
 final float VELOCIDADE_PLATFORM = 1.5;
 final float speed = 5;
 final float RAIO_BALL = 20;
-final int simulacoes = 50000000;
+final int simulacoes = 500000000;
 
+Platform paddleIA;
+Ball ball;
 
 int total;
 int pontuacaoMax;
@@ -51,7 +50,7 @@ void carregamento(){
   fill(#ffffff);
   text(texto2,width/2-textWidth(texto1)/2,height/2-100);
 
-  // Progresso
+  // Progresso das simulações
   int tamanhoBarra = 500;
   int espessuraBarra = 20;
   int ultimoPercento = 0;
@@ -65,7 +64,7 @@ void carregamento(){
     rect((width-tamanhoBarra)/2+(i-1)*tamanhoBarra/100,height/2-65,tamanhoBarra/100,espessuraBarra);
   }
 
-  // Porcentagem #FFEA00 #24E31B
+  // Porcentagem das simulações
   if (ultimoPercento<=50) fill(lerpColor(#FF0062,#FFEA00,ultimoPercento/50.0));
   else fill(lerpColor(#FFEA00,#24E31B,(ultimoPercento-50)/50.0));
   tamanhoFonte = 25;
@@ -80,7 +79,7 @@ void carregamento(){
 void miniPong(){
   rectMode(CORNER);
 
-  // mapa
+  // campo
   stroke(1);
   int compPong = width*4/10; // default 400
   int largPong = height*2/5; // default 200
@@ -110,7 +109,7 @@ void miniPong(){
   int raioBola = 4; // velBase > raioBola
   if (mp_pxBal == -1){
     mp_pxBal=compPong/2;mp_pyBal=raioBola*2+1;
-    mp_vxBal=(velBase)*((random(1)>0.5)?1:-1);mp_vyBal=(int) velBase;
+    mp_vxBal=(velBase)*((random(1)>0.5)?1:-1);mp_vyBal=(float) velBase;
     println(mp_vxBal);
   }
   mp_pxBal+=mp_vxBal;mp_pyBal+=mp_vyBal;
@@ -120,11 +119,39 @@ void miniPong(){
   else if (mp_pyBal-raioBola<=0) mp_vyBal=mod(mp_vyBal);
 
   // soma os pontos ou rebate
-  if (mp_pxBal+raioBola>=compPong-spaceGoal){
-    if (mp_pyBal>=mp_pyPla&&mp_pyBal<=mp_pyPla+largBarra) mp_vxBal*=-1;
+  if (mp_pxBal+raioBola>=compPong-spaceGoal){ // player
+    if (mp_pyBal>=mp_pyPla&&mp_pyBal<=mp_pyPla+largBarra){
+      // calcula a velocidade levando em conta a posição que a bola baetu na barra :
+      // sen a . n2 = sen th . n1
+      // a = asen(sen th . n1/n2)
+      float velResultante = (float) Math.pow(Math.pow(mp_vxBal,2)+Math.pow(mp_vyBal,2),0.5);
+      float tgTh =  mp_vxBal/mp_vyBal;
+      float theta = (float) Math.atan(tgTh);
+      float eta1 = 1, eta2 = map(mod((mp_pyPla+largBarra/2)-mp_pyBal),0,largBarra/2,1,0.5);
+      float alpha = (float) Math.asin( (mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1);
+      if (alpha/PI*180<=5) alpha=(90-alpha/PI*180)/180*PI;
+      mp_vxBal = (float) Math.sin(alpha)*velResultante;
+      mp_vyBal = (float) Math.cos(alpha)*velResultante;
+      println("---------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
+      mp_vxBal*=-1;
+    }
     else {mp_pontMaq+=1;mp_pxBal=-1;}
-  }else if (mp_pxBal-raioBola<=spaceGoal){
-    if (mp_pyBal>=mp_pyMaq&&mp_pyMaq<=mp_pyMaq+largBarra) mp_vxBal*=-1;
+  }else if (mp_pxBal-raioBola<=spaceGoal){ // machine
+    if (mp_pyBal>=mp_pyMaq&&mp_pyMaq<=mp_pyMaq+largBarra){
+      // calcula a velocidade levando em conta a posição que a bola baetu na barra :
+      // sen a . n2 = sen th . n1
+      // a = asen(sen th . n1/n2)
+      float velResultante = (float) Math.pow(Math.pow(mp_vxBal,2)+Math.pow(mp_vyBal,2),0.5);
+      float tgTh =  mp_vxBal/mp_vyBal;
+      float theta = (float) Math.atan(tgTh);
+      float eta1 = 1, eta2 = map(mod((mp_pyMaq+largBarra/2)-mp_pyBal),0,largBarra/2,1,0.5);
+      float alpha = (float) Math.asin( (mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1);
+      if (alpha/PI*180<=5) alpha=(90-alpha/PI*180)/180*PI;
+      mp_vxBal = (float) Math.sin(alpha)*velResultante;
+      mp_vyBal = (float) Math.cos(alpha)*velResultante;
+      println("---------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
+      mp_vxBal*=-1;
+    }
     else {mp_pontPla+=1;mp_pxBal=-1;}
   }
 
@@ -188,12 +215,13 @@ void showGraph() {
   if (mouseX>=width/100.0 && mouseX<width-width/100.0) {
     fill(255);
     noStroke();
-    ellipse(graphScale*mx, height/1.5-pontuacoes.get(mx+round(graphOffset/graphScale))*10, 5, 5);
-    textSize(10);
-    text(pontuacoes.get(mx+round(graphOffset/graphScale)), graphScale*mx, height/1.5-pontuacoes.get(mx+round(graphOffset/graphScale))*10+10);
-    //vertex(width, height/2.0+pontuacoes.get(pontuacoes.size()-1)*10);
-    //vertex(width, height);
-    //endShape();
+    try{ // mouse que ultrapassa o gráfico
+      ellipse(graphScale*mx, height/1.5-pontuacoes.get(mx+round(graphOffset/graphScale))*10, 5, 5);
+      textSize(10);
+      text(pontuacoes.get(mx+round(graphOffset/graphScale)), graphScale*mx, height/1.5-pontuacoes.get(mx+round(graphOffset/graphScale))*10+10);
+    } catch (Exception e){
+
+    }
   }
 }
 
