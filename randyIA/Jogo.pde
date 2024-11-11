@@ -29,9 +29,13 @@ class Jogo {
   }
 
   String obterEstado() {
+    // estado ruim
     int ballX =  round(map(ball.pos.x, 0, width, 0, 10));
     int aberturaErro = round(map(ball.pos.y - paddleIA.pos.y, 0, height, 0, 20));
     return  ballX + "," + aberturaErro;
+    // estado bom
+    // int aberturaErro = round(map(ball.pos.y - paddleIA.pos.y, 0, height, 0, 50));
+    // return ""+aberturaErro;
   }
 
   void atualizar() {

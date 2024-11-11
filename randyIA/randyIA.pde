@@ -2,20 +2,18 @@ Platform paddleIA;
 Ball ball;
 
 final int LARGURA_PLATFORM = 10;
-final int ALTURA_PLATFORM = 70;
+final int ALTURA_PLATFORM = 200;
 final float VELOCIDADE_PLATFORM = 1.5;
 final float speed = 5;
 final float RAIO_BALL = 20;
-final int simulacoes = 1000000;
+final int simulacoes = 50000000;
 
 
 int total;
 int pontuacaoMax;
 
 boolean fimDeJogo, acertou;
-
 Jogo jogo;
-
 
 ArrayList<Integer> pontuacoes;
 
@@ -32,25 +30,25 @@ int simulacaoAtual = 0;
 
 // Mini Pong
 int mp_pontMaq = 0,mp_pontPla = 0;
-int mp_pyMaq = 0,mp_pyPla = 0;
-int mp_pxBal = -1,mp_pyBal=0,mp_vxBal=0,mp_vyBal=0;
+float mp_pyMaq = 0,mp_pyPla = 0;
+float mp_pxBal = -1,mp_pyBal=0,mp_vxBal=0,mp_vyBal=0;
 
 boolean rodarCarregamento = true;
 boolean showObjects = true;
 
 void carregamento(){
   noStroke();
-  background(#FFBA39);
+  background(#102143);
 
   // Escrita
   String texto1 = "Simulando "+String.format("%,d",simulacoes).replace(",",".")+" de jogos ";
   String texto2 = texto1;
-  for (int i = 0;i<qt_pontos;i++){
+  for (int i = 0;i<qt_pontos/10;i++){
     texto2 += ".";
   }
   int tamanhoFonte = 50;
   textSize(tamanhoFonte);
-  fill(#000000);
+  fill(#ffffff);
   text(texto2,width/2-textWidth(texto1)/2,height/2-100);
 
   // Progresso
@@ -60,14 +58,16 @@ void carregamento(){
   for (int i = 1;i<=100;i++){
     fill(#ffffff);
     if (i<=((float) (simulacaoAtual+1)/simulacoes)*100){
-      fill(#4BFF00);
+      if (ultimoPercento<=50) fill(lerpColor(#FF0062,#FFEA00,ultimoPercento/50.0));
+      else fill(lerpColor(#FFEA00,#24E31B,(ultimoPercento-50)/50.0)); // sem querer
       ultimoPercento = i;
     }
     rect((width-tamanhoBarra)/2+(i-1)*tamanhoBarra/100,height/2-65,tamanhoBarra/100,espessuraBarra);
   }
 
-  // Porcentagem
-  fill((int) (75/100*ultimoPercento),(int) (255/100*ultimoPercento),0);
+  // Porcentagem #FFEA00 #24E31B
+  if (ultimoPercento<=50) fill(lerpColor(#FF0062,#FFEA00,ultimoPercento/50.0));
+  else fill(lerpColor(#FFEA00,#24E31B,(ultimoPercento-50)/50.0));
   tamanhoFonte = 25;
   textSize(tamanhoFonte);
   String texto = ultimoPercento+"%";
@@ -75,22 +75,24 @@ void carregamento(){
 
   // Mini pong
   miniPong();
-  //
-  delay(50);
 }
 
 void miniPong(){
+  rectMode(CORNER);
   // mapa
+  stroke(1);
   int compPong = width*4/10; // default 400
   int largPong = height*2/5; // default 200
   int compBarra = 20,largBarra = 40;
-  fill(#1C5AFF);
+  fill(#102143);
   int initPx = width/2-compPong/2;
   int initPy = height/2;
   int spaceGoal = 40;
   rect(width/2-compPong/2,height/2,compPong,largPong);
+  noStroke();
+
   // barras
-  fill(#AEC0F2);
+  fill(#FFFFFF);
   rect(initPx+spaceGoal-compBarra,initPy+mp_pyMaq,compBarra,largBarra); // maquina
   rect(initPx+compPong-spaceGoal,initPy+mp_pyPla,compBarra,largBarra); // player
 
@@ -103,10 +105,11 @@ void miniPong(){
   if (mp_pyPla+largBarra>largPong) mp_pyPla = largPong-largBarra;
   
   // bolinha
-  int velBase = 10 ,raioBola = 9; // velBase > raioBola
+  float velBase = 0.2;
+  int raioBola = 9; // velBase > raioBola
   if (mp_pxBal == -1){
     mp_pxBal=compPong/2;mp_pyBal=0;
-    mp_vxBal=(velBase)*((random(1)>0.5)?1:-1);mp_vyBal=velBase;
+    mp_vxBal=(int) (velBase)*((random(1)>0.5)?1:-1);mp_vyBal=(int) velBase;
     println(mp_vxBal);
   }
   mp_pxBal+=mp_vxBal;mp_pyBal+=mp_vyBal;
@@ -124,18 +127,18 @@ void miniPong(){
   }
 
   // desenha bolinha
-  fill(#B538FA);
+  fill(#FFFFFF);
   circle(initPx+mp_pxBal,initPy+mp_pyBal,raioBola);
 
   // Placar
-  fill(#000000);
+  fill(#ffffff);
   textSize(25);
   String texto = "Maquina: "+mp_pontMaq+" | Perdedor: "+mp_pontPla;
   text(texto,initPx+compPong/2-textWidth(texto)/2,initPy-5);
 
   // linhas imaginárias
   stroke(1);
-  fill(#000000);
+  fill(#FFFFFF);
   line(initPx+compPong-spaceGoal,initPy,initPx+compPong-spaceGoal,initPy+largPong);
   line(initPx+spaceGoal,initPy,initPx+spaceGoal,initPy+largPong);
   noStroke();
@@ -200,6 +203,9 @@ void keyReleased() {
   case 'r':
     setup();
     break;
+  case 'a': // aleatorium on the ball
+    jogo.reiniciar();
+    break;
   }
 }
 
@@ -227,12 +233,17 @@ void setup() {
   size(1000, 500);
   rodarCarregamento = true;
   thread("rodarSimulacoes");
+
+  // mini pong
+  mp_pontMaq = 0;mp_pontPla = 0;
+  mp_pyMaq = 0;mp_pyPla = 0;
+  mp_pxBal = -1;mp_pyBal=0;mp_vxBal=0;mp_vyBal=0;
 }
 
 void draw() {
   if (rodarCarregamento){
     carregamento();
-    qt_pontos += (qt_pontos < 5) ? 1 : -4;
+    qt_pontos += (qt_pontos < 50) ? 1 : -49;
     // println(simulacaoAtual);
   }else{
     background(bgColor);
