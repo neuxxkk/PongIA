@@ -190,6 +190,7 @@ void rodarSimulacoes(){
   pontuacoes = new ArrayList<Integer>();
   showObjects = false;
   for (int i = 0; i < simulacoes; i++) {
+    if (!rodarCarregamento) return;
     jogo.atualizar();
     if (fimDeJogo) {
       jogo.atualizar();
@@ -242,6 +243,10 @@ void keyReleased() {
     else isGraph = true;
     break;
   case 'r':
+    {// bug de varios carregamentos
+      rodarCarregamento = false;
+      delay(50);
+    }
     setup();
     break;
   case 'a': // aleatorium on the ball
