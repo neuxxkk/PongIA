@@ -3,7 +3,7 @@ final int ALTURA_PLATFORM = 70;
 final float VELOCIDADE_PLATFORM = 1.5;
 final float speed = 5;
 final float RAIO_BALL = 20;
-final int simulacoes = 500000000;
+final int simulacoes = 1000000;
 
 Platform paddleIA;
 Ball ball;
@@ -216,6 +216,7 @@ void showGraph() {
   //beginShape();
   //vertex(0, height);
   for (int i = 0; i < pontuacoes.size()-1; ++i) {
+    graphScale-=.0001/(float)pontuacoes.size();
     line(graphScale*i-graphOffset, height/1.5-pontuacoes.get(i)*10, graphScale*(i+1)-graphOffset, height/1.5-pontuacoes.get(i+1)*10);
   }
   //ellipse(width-l, height/2.0-pontuacoes.get(pontuacoes.size()-1)*10, 5, 5);

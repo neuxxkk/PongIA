@@ -60,7 +60,7 @@ class Jogo {
 
       if (ultimaAcao == 1) paddleIA.vel = - VELOCIDADE_PLATFORM; // Up
       else if (ultimaAcao == 2) paddleIA.vel = VELOCIDADE_PLATFORM; // Down
-
+      else paddleIA.vel = 0;
 
       estadoUltimaAcao = estadoAtual;
       quadroUltimaAcao = quadroAtual;
