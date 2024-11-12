@@ -98,6 +98,7 @@ void miniPong(){
 
   // movimento
   mp_pyPla = mouseY-initPy-largBarra/2;
+  
   mp_pyMaq = mp_pyBal-largBarra/2;
   if (mp_pyMaq<0) mp_pyMaq=0;
   if (mp_pyMaq+largBarra>largPong) mp_pyMaq = largPong-largBarra;
@@ -126,14 +127,17 @@ void miniPong(){
       // a = asen(sen th . n1/n2)
       float velResultante = (float) Math.pow(Math.pow(mp_vxBal,2)+Math.pow(mp_vyBal,2),0.5);
       float tgTh =  mp_vxBal/mp_vyBal;
+      float sentidoY = mp_vyBal/mod(mp_vyBal);
       float theta = (float) Math.atan(tgTh);
       float eta1 = 1, eta2 = map(mod((mp_pyPla+largBarra/2)-mp_pyBal),0,largBarra/2,1,0.5);
+      println("pos : "+((mp_pyPla+largBarra/2)-mp_pyBal));
       float alpha = (float) Math.asin( (mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1);
-      if (alpha/PI*180<=5) alpha=(90-alpha/PI*180)/180*PI;
+      if (alpha/PI*180<=1) alpha=(90-alpha/PI*180)/180*PI;
       mp_vxBal = (float) Math.sin(alpha)*velResultante;
       mp_vyBal = (float) Math.cos(alpha)*velResultante;
       println("-Pla--------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
-      mp_vxBal*=-1;
+      mp_vxBal = -mod(mp_vxBal);
+      mp_vyBal = (sentidoY>=1)?mod(mp_vyBal):-mod(mp_vyBal);
     }
     else {mp_pontMaq+=1;mp_pxBal=-1;}
   }else if (mp_pxBal-raioBola<=spaceGoal){ // machine
@@ -143,13 +147,17 @@ void miniPong(){
       // a = asen(sen th . n1/n2)
       float velResultante = (float) Math.pow(Math.pow(mp_vxBal,2)+Math.pow(mp_vyBal,2),0.5);
       float tgTh =  mp_vxBal/mp_vyBal;
+      float sentidoY = mp_vyBal/mod(mp_vyBal);
       float theta = (float) Math.atan(tgTh);
       float eta1 = 1, eta2 = map(mod((mp_pyMaq+largBarra/2)-mp_pyBal),0,largBarra/2,1,0.5);
+      println("pos : "+((mp_pyMaq+largBarra/2)-mp_pyBal));
       float alpha = (float) Math.asin( (mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1);
-      if (alpha/PI*180<=5) alpha=(90-alpha/PI*180)/180*PI;
+      if (alpha/PI*180<=1) alpha=(90-alpha/PI*180)/180*PI;
       mp_vxBal = (float) Math.sin(alpha)*velResultante;
       mp_vyBal = (float) Math.cos(alpha)*velResultante;
-      println("-Maq--------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
+      println("-maq--------------\nvelRe.: "+velResultante+"\ntgTh: "+theta+"\ntheta: "+theta+"\neta2: "+eta2+"\naplha: "+alpha+"\nCalq.: "+((mod((float) Math.sin(theta)*eta1/eta2)<=1) ? Math.sin(theta)*eta1/eta2 : Math.sin(theta)*eta2/eta1)+"\nComp : "+mp_vxBal+" e "+mp_vyBal);
+      mp_vxBal = mod(mp_vxBal);
+      mp_vyBal = (sentidoY>=1)?mod(mp_vyBal):-mod(mp_vyBal);
     }
     else {mp_pontPla+=1;mp_pxBal=-1;}
   }
